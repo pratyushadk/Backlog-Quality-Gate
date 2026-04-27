@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backlog Quality Gate</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">BQ</div>
+    <div>
+      <h1>Backlog Quality Gate</h1>
+      <div class="subtitle">AI-assisted analysis with MCP-controlled updates</div>
+    </div>
+  </div>
+  <span class="mcp-badge">MCP Enabled</span>
+</header>
+
+<main>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn btn-primary" id="btn-analyze-all">Analyze All Stories</button>
+    <button class="btn btn-secondary" id="btn-new-story">New Story</button>
+    <button class="btn btn-ghost" id="btn-download-pdf">Download PDF Report</button>
+    <button class="btn btn-ghost" id="btn-download-report">Download JSON Report</button>
+    <button class="btn btn-ghost" id="btn-export-backlog">Export Backlog</button>
+    <span class="spacer"></span>
+    <span class="status-text" id="analyze-status"></span>
+  </div>
+
+  <!-- BHI Dashboard -->
+  <div class="section-title">Backlog Health Index</div>
+  <div class="bhi-grid">
+
+    <!-- Headline card -->
+    <div class="bhi-card">
+      <div class="bhi-headline">
+        <div class="bhi-score-ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+            <circle class="ring-fg" id="bhi-ring-fg" cx="60" cy="60" r="52"
+                    stroke-dasharray="326.7" stroke-dashoffset="326.7"></circle>
+          </svg>
+          <div class="bhi-score-text">
+            <div>
+              <div class="bhi-score-num" id="bhi-score">--</div>
+              <div class="bhi-score-out-of">out of 100</div>
+            </div>
+          </div>
+        </div>
+        <div class="bhi-grade-row">
+          <div class="bhi-grade" id="bhi-grade">-</div>
+          <div class="bhi-grade-label" id="bhi-grade-label">Awaiting analysis</div>
+        </div>
+      </div>
+      <div class="bhi-formula">
+        <b>BHI</b> = (0.20·T̄ + 0.10·D̄ + 0.30·Ā + 0.25·S̄ + 0.15·C̄) · (1 − 0.4·ρ)
+        <br /><span style="opacity:.85">ρ = critical-defect ratio · σ = consistency</span>
+      </div>
+    </div>
+
+    <!-- Dimensions card -->
+    <div class="bhi-card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text)">
+        Quality Dimensions
+        <span class="text-muted" style="font-weight:400;margin-left:6px">weighted contribution to BHI</span>
+      </div>
+      <div class="bhi-dims" id="bhi-dims">
+        <div class="bhi-dim">
+          <div class="bhi-dim-label">Title Clarity <small>weight 0.20</small></div>
+          <div class="bhi-dim-bar"><div class="bhi-dim-bar-fill" data-dim="title" style="width:0%"></div></div>
+          <div class="bhi-dim-value" data-dim-val="title">—</div>
+        </div>
+        <div class="bhi-dim">
+          <div class="bhi-dim-label">Description Quality <small>weight 0.10</small></div>
+          <div class="bhi-dim-bar"><div class="bhi-dim-bar-fill" data-dim="description" style="width:0%"></div></div>
+          <div class="bhi-dim-value" data-dim-val="description">—</div>
+        </div>
+        <div class="bhi-dim">
+          <div class="bhi-dim-label">Acceptance Criteria <small>weight 0.30 — highest</small></div>
+          <div class="bhi-dim-bar"><div class="bhi-dim-bar-fill" data-dim="acceptance_criteria" style="width:0%"></div></div>
+          <div class="bhi-dim-value" data-dim-val="acceptance_criteria">—</div>
+        </div>
+        <div class="bhi-dim">
+          <div class="bhi-dim-label">Sizing (Fibonacci) <small>weight 0.25</small></div>
+          <div class="bhi-dim-bar"><div class="bhi-dim-bar-fill" data-dim="sizing" style="width:0%"></div></div>
+          <div class="bhi-dim-value" data-dim-val="sizing">—</div>
+        </div>
+        <div class="bhi-dim">
+          <div class="bhi-dim-label">Context / Structure <small>weight 0.15</small></div>
+          <div class="bhi-dim-bar"><div class="bhi-dim-bar-fill" data-dim="context" style="width:0%"></div></div>
+          <div class="bhi-dim-value" data-dim-val="context">—</div>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-cell">
+          <div class="label">Total Stories</div>
+          <div class="value" id="stat-total">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="label">Valid</div>
+          <div class="value" id="stat-valid" style="color:var(--good)">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="label">With Issues</div>
+          <div class="value" id="stat-issues" style="color:var(--bad)">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="label">Orphan Stories</div>
+          <div class="value" id="stat-orphan" style="color:var(--warn)">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="label">Critical Defect Rate</div>
+          <div class="value" id="stat-rho" style="color:var(--warn)">—</div>
+          <div class="sub" id="stat-rho-sub"></div>
+        </div>
+        <div class="stat-cell">
+          <div class="label">Consistency (σ)</div>
+          <div class="value" id="stat-sigma">—</div>
+          <div class="sub" id="stat-sigma-sub"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Recommendations -->
+  <div id="recommendations-section" class="hidden">
+    <div class="section-title">Recommendations</div>
+    <ul class="recs-list" id="recommendations-list"></ul>
+  </div>
+
+  <!-- Backlog Table -->
+  <div class="section-title">
+    Backlog Items
+    <span class="count-pill" id="backlog-count">0</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="td-id">ID</th>
+          <th>Title</th>
+          <th class="td-points" style="text-align:center">Points</th>
+          <th class="td-quality">Quality</th>
+          <th class="td-issues">Detected Issues</th>
+          <th class="td-action">Action</th>
+        </tr>
+      </thead>
+      <tbody id="backlog-tbody">
+        <tr><td colspan="6" class="empty-state">Loading backlog…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Global execution log -->
+  <div id="global-log-section" class="hidden">
+    <div class="section-title">MCP Execution Log</div>
+    <div class="table-wrap" style="padding: 14px 18px">
+      <ul class="exec-log" id="global-exec-log"></ul>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============ Modal: Analyze / Fix existing story ============ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="story-modal">
+
+    <div class="modal-header">
+      <div>
+        <h2>Story Analysis & Fix
+          <span class="story-id-badge" id="modal-story-id">#—</span>
+        </h2>
+      </div>
+      <button class="modal-close" id="modal-close-btn" title="Close">×</button>
+    </div>
+
+    <div class="modal-steps">
+      <div class="step-item active" id="step-1"><div class="step-num">1</div>Analysis</div>
+      <div class="step-item" id="step-2"><div class="step-num">2</div>AI Fix</div>
+      <div class="step-item" id="step-3"><div class="step-num">3</div>MCP Preview</div>
+      <div class="step-item" id="step-4"><div class="step-num">4</div>Result</div>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Step 1 -->
+      <div id="section-analysis">
+        <div class="panel">
+          <div class="panel-head">Step 1 — Analysis</div>
+          <div class="panel-body">
+            <div id="analysis-loading" class="loading-row hidden">
+              <div class="spinner dark"></div> Analyzing with Grok…
+            </div>
+            <div id="analysis-result" class="hidden">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span style="font-size:12px;color:var(--text-muted)">Severity:</span>
+                <span id="analysis-severity" class="sev-medium" style="font-weight:600;font-size:12px"></span>
+              </div>
+              <div class="issues-list" id="analysis-issues"></div>
+              <p class="explanation-text" id="analysis-explanation"></p>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <button class="btn btn-primary hidden" id="btn-get-fix">Get AI Fix</button>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Step 2 -->
+      <div id="section-fix" class="hidden">
+        <div class="panel">
+          <div class="panel-head">Step 2 — Before / After Comparison <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px">— both panes are editable</span></div>
+          <div class="panel-body">
+            <div id="fix-loading" class="loading-row hidden">
+              <div class="spinner dark"></div> Generating AI fix…
+            </div>
+            <div id="fix-result" class="hidden">
+              <p class="explanation-text" id="fix-explanation" style="margin-bottom:10px"></p>
+              <div class="json-diff">
+                <div class="json-pane before" id="fix-pane-before">
+                  <div class="json-pane-head">
+                    <span>Original</span>
+                    <span class="edit-indicator">Editable</span>
+                  </div>
+                  <textarea class="json-textarea" id="fix-json-before" spellcheck="false"></textarea>
+                </div>
+                <div class="json-pane after" id="fix-pane-after">
+                  <div class="json-pane-head">
+                    <span>AI Improved <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0">— this replaces the existing story after approval</span></span>
+                    <span class="edit-indicator">Editable</span>
+                  </div>
+                  <textarea class="json-textarea" id="fix-json-after" spellcheck="false"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel hidden" id="section-decomp">
+          <div class="panel-head">Decomposition — Child Stories <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px">— editable JSON array</span></div>
+          <div class="panel-body">
+            <p class="text-muted" style="margin-bottom:8px;font-size:13px">
+              The oversized story will be broken into these sub-stories after approval. Edit the array below to refine.
+            </p>
+            <div class="json-pane" id="fix-decomp-pane">
+              <div class="json-pane-head">
+                <span>Child Stories Array</span>
+                <span class="edit-indicator">Editable</span>
+              </div>
+              <textarea class="json-textarea" id="fix-decomp-json" spellcheck="false" style="min-height:240px"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="fix-validation-panel">
+          <div class="panel-body" style="padding-top:12px;padding-bottom:12px">
+            <div class="json-validation-row">
+              <span class="status" id="fix-validation-status">
+                Tip: refine any pane, then click "Apply Edits" — the MCP action below will be regenerated to match your changes.
+              </span>
+              <button class="btn btn-secondary btn-sm" id="fix-apply-edits-btn">Apply Edits &amp; Refresh MCP</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:right">
+          <button class="btn btn-primary hidden" id="btn-gen-mcp">Preview MCP Actions</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="section-mcp" class="hidden">
+        <div class="panel">
+          <div class="panel-head">Step 3 — MCP Action Preview (Simulation)</div>
+          <div class="panel-body">
+            <div class="mcp-sim-banner">Simulation only — no changes have been applied yet. Human approval required.</div>
+            <div id="mcp-actions-container"></div>
+          </div>
+        </div>
+        <div class="approval-row">
+          <p>Review the MCP actions above. Approve to apply through the executor, or reject to discard.</p>
+          <button class="btn btn-success" id="btn-approve">Approve Changes</button>
+          <button class="btn btn-danger" id="btn-reject">Reject</button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="section-exec" class="hidden">
+        <div class="panel">
+          <div class="panel-head" id="exec-panel-head">Step 4 — Execution Log</div>
+          <div class="panel-body">
+            <ul class="exec-log" id="modal-exec-log"></ul>
+          </div>
+        </div>
+        <div style="text-align:right;margin-top:8px">
+          <button class="btn btn-secondary" id="btn-close-after-exec">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ Modal: New Story (user-typed) ============ -->
+<div class="modal-overlay" id="draft-overlay">
+  <div class="modal" id="draft-modal">
+
+    <div class="modal-header">
+      <h2>Add Backlog Item</h2>
+      <button class="modal-close" id="draft-close-btn" title="Close">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Form -->
+      <div id="draft-form-section">
+        <p class="text-muted" style="margin-bottom:14px">
+          Enter your backlog story below. The AI will analyze it, suggest improvements, and prepare an MCP action — no changes are applied until you approve.
+        </p>
+
+        <div class="form-group">
+          <label for="draft-title">Title</label>
+          <span class="form-hint">Best in user-story format: "As a [role], I want [action] so that [benefit]"</span>
+          <input type="text" class="form-control" id="draft-title" placeholder="e.g. As a customer, I want to track my order so that I know when it will arrive" />
+        </div>
+
+        <div class="form-group">
+          <label for="draft-description">Description</label>
+          <textarea class="form-control" id="draft-description" placeholder="Brief summary of the story (1-3 sentences)"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="draft-points">Story Points</label>
+            <span class="form-hint">Use Fibonacci values: 1, 2, 3, 5, 8, 13</span>
+            <input type="number" class="form-control" id="draft-points" min="0" max="100" placeholder="5" />
+          </div>
+          <div class="form-group">
+            <label for="draft-parent">Parent Story (optional)</label>
+            <span class="form-hint">Link this story to a parent epic</span>
+            <select class="form-control" id="draft-parent">
+              <option value="">None</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="draft-ac">Acceptance Criteria</label>
+          <span class="form-hint">One per line. Aim for 3–5 specific, testable criteria.</span>
+          <textarea class="form-control" id="draft-ac" rows="5" placeholder="User can enter shipping address&#10;System validates address format&#10;Confirmation email is sent after submission"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-ghost" id="draft-cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="draft-process-btn">Analyze & Suggest Improvements</button>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="draft-loading-section" class="hidden">
+        <div class="loading-row">
+          <div class="spinner dark"></div> Analyzing your draft and generating improvements…
+        </div>
+      </div>
+
+      <!-- Result section -->
+      <div id="draft-result-section" class="hidden">
+
+        <div class="panel">
+          <div class="panel-head">Analysis Summary</div>
+          <div class="panel-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:12px;color:var(--text-muted)">Severity:</span>
+              <span id="draft-severity" style="font-weight:600;font-size:12px"></span>
+            </div>
+            <div class="issues-list" id="draft-issues"></div>
+            <p class="explanation-text" id="draft-explanation"></p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Suggested Changes</div>
+          <div class="panel-body">
+            <p class="explanation-text" id="draft-fix-explanation" style="margin-bottom:10px"></p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Before / After (JSON) — both panes are editable</div>
+          <div class="panel-body">
+            <div class="json-diff">
+              <div class="json-pane before" id="json-pane-before">
+                <div class="json-pane-head">
+                  <span>Original</span>
+                  <span class="edit-indicator">Editable</span>
+                </div>
+                <textarea class="json-textarea" id="draft-json-before" spellcheck="false"></textarea>
+              </div>
+              <div class="json-pane after" id="json-pane-after">
+                <div class="json-pane-head">
+                  <span>AI Improved <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0">— this is what gets added to the backlog</span></span>
+                  <span class="edit-indicator">Editable</span>
+                </div>
+                <textarea class="json-textarea" id="draft-json-after" spellcheck="false"></textarea>
+              </div>
+            </div>
+
+            <div class="json-validation-row">
+              <span class="status" id="json-validation-status">
+                Tip: refine either side, then click "Apply Edits" — the MCP action below will be regenerated to match your changes.
+              </span>
+              <button class="btn btn-secondary btn-sm" id="draft-apply-edits-btn">Apply Edits &amp; Refresh MCP</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel hidden" id="draft-decomp-panel">
+          <div class="panel-head">Decomposition — Child Stories <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px">— editable JSON array</span></div>
+          <div class="panel-body">
+            <p class="text-muted" style="margin-bottom:8px;font-size:13px">
+              The story will be broken into these sub-stories after approval. Edit the array to refine.
+            </p>
+            <div class="json-pane" id="draft-decomp-pane">
+              <div class="json-pane-head">
+                <span>Child Stories Array</span>
+                <span class="edit-indicator">Editable</span>
+              </div>
+              <textarea class="json-textarea" id="draft-decomp-json" spellcheck="false" style="min-height:220px"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">MCP Action Preview (Simulation)</div>
+          <div class="panel-body">
+            <div class="mcp-sim-banner">No changes have been applied yet. Approve to add this item to the backlog.</div>
+            <div id="draft-mcp-container"></div>
+          </div>
+        </div>
+
+        <div class="approval-row">
+          <p>Review the suggested changes and the MCP action above.</p>
+          <button class="btn btn-secondary" id="draft-edit-btn">Edit Draft</button>
+          <button class="btn btn-success" id="draft-approve-btn">Approve & Add to Backlog</button>
+          <button class="btn btn-danger" id="draft-reject-btn">Reject</button>
+        </div>
+      </div>
+
+      <!-- Done state -->
+      <div id="draft-done-section" class="hidden">
+        <div class="panel">
+          <div class="panel-head" id="draft-done-head">Result</div>
+          <div class="panel-body">
+            <ul class="exec-log" id="draft-exec-log"></ul>
+          </div>
+        </div>
+        <div style="text-align:right;margin-top:8px">
+          <button class="btn btn-secondary" id="draft-done-btn">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

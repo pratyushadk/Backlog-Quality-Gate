@@ -1,0 +1,29 @@
+# ── Secrets & environment ─────────────────────────────────────
+.env
+*.env
+*.env.local
+*.env.*.local
+
+# ── Node.js ───────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ── OS generated ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor / IDE ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ── Build / temp artefacts ────────────────────────────────────
+dist/
+build/
+*.log
+*.tmp
+*.pdf
