@@ -62,19 +62,13 @@
   },
   {
     "id": 6,
-    "title": "As a user, I want real-time notifications so that I stay informed of important events instantly",
-    "description": "Implement a real-time notification system using WebSockets that pushes updates to users immediately as events occur. This includes backend event publishing, client connection management, and UI display components.",
-    "story_points": 13,
-    "acceptance_criteria": [
-      "Notifications are delivered in under 5 seconds of the event without requiring a page refresh",
-      "Users receive only notifications relevant to their permissions and subscriptions",
-      "The system gracefully handles disconnects with automatic reconnection",
-      "Notifications are displayed in both a toast format and a persistent inbox view"
-    ],
+    "title": "Implement real-time notifications",
+    "description": "",
+    "story_points": 20,
+    "acceptance_criteria": [],
     "parent_id": null,
     "status": "todo",
-    "type": "story",
-    "updated_at": "2026-04-27T19:10:27.856Z"
+    "type": "story"
   },
   {
     "id": 7,
@@ -124,53 +118,5 @@
     "parent_id": null,
     "status": "todo",
     "type": "story"
-  },
-  {
-    "id": 11,
-    "title": "As a user, I want the app to establish and maintain a WebSocket connection so that I can receive real-time updates",
-    "description": "Implement client-side WebSocket connection logic with reconnection handling.",
-    "story_points": 3,
-    "acceptance_criteria": [
-      "WebSocket connects automatically on user login",
-      "Connection status is monitored and logged",
-      "Automatic reconnect occurs on failure (with backoff)",
-      "Connection is closed cleanly on logout"
-    ],
-    "parent_id": 6,
-    "status": "todo",
-    "type": "story",
-    "created_at": "2026-04-27T19:10:34.154Z"
-  },
-  {
-    "id": 12,
-    "title": "As a user, I want to see incoming notifications in the UI so that I can view and interact with them",
-    "description": "Build frontend components to listen for messages and render notifications as toasts and in a notification center.",
-    "story_points": 5,
-    "acceptance_criteria": [
-      "Real-time notification appears as a dismissible toast",
-      "Notification badge updates on the navigation icon",
-      "Clicking a notification marks it read and navigates to the related context",
-      "Notifications are persisted in local state for the session"
-    ],
-    "parent_id": 6,
-    "status": "todo",
-    "type": "story",
-    "created_at": "2026-04-27T19:10:34.154Z"
-  },
-  {
-    "id": 13,
-    "title": "As a developer, I want to publish events from the backend so that relevant notifications are sent in real-time",
-    "description": "Add backend logic to emit notification events over WebSockets when key actions occur in the system.",
-    "story_points": 5,
-    "acceptance_criteria": [
-      "Event is published to the correct user channel on trigger (e.g. new message)",
-      "Payload includes title, body, timestamp and link",
-      "Only authenticated and authorized users receive events",
-      "Unit and integration tests confirm event flow end-to-end"
-    ],
-    "parent_id": 6,
-    "status": "todo",
-    "type": "story",
-    "created_at": "2026-04-27T19:10:34.154Z"
   }
 ]
