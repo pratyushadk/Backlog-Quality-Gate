@@ -34,7 +34,7 @@ const COLORS = {
   white:     '#ffffff',
 };
 
-const PAGE_MARGIN = 50;
+const PAGE_MARGIN = 40;
 
 function gradeBgColor(grade) {
   return { A: '#10b981', B: '#0ea5e9', C: '#f59e0b', D: '#f97316', F: '#dc2626' }[grade] || COLORS.muted;
@@ -52,6 +52,15 @@ const ISSUE_LABEL = {
   oversized_story: 'Oversized Story',
   orphan_story: 'Orphan Story',
   weak_title: 'Weak / Vague Title',
+};
+
+// Abbreviated versions for the compact story table
+const ISSUE_SHORT = {
+  missing_acceptance_criteria: 'Missing AC',
+  invalid_story_points: 'Invalid Pts',
+  oversized_story: 'Oversized',
+  orphan_story: 'Orphan',
+  weak_title: 'Weak Title',
 };
 
 const DIM_LABEL = {
@@ -75,14 +84,14 @@ const DIM_WEIGHT_KEY = {
 // ──────────────────────────────────────────────────────────
 
 function ensureSpace(doc, needed) {
-  if (doc.y + needed > doc.page.height - 60) {
+  if (doc.y + needed > doc.page.height - 55) {
     doc.addPage();
   }
 }
 
 function sectionTitle(doc, title) {
-  ensureSpace(doc, 40);
-  doc.moveDown(0.4);
+  ensureSpace(doc, 60);
+  doc.moveDown(0.2);
   doc
     .font('Helvetica-Bold')
     .fontSize(10)
@@ -95,7 +104,7 @@ function sectionTitle(doc, title) {
     .strokeColor(COLORS.borderLite)
     .lineWidth(0.5)
     .stroke();
-  doc.moveDown(0.5);
+  doc.moveDown(0.3);
   doc.fillColor(COLORS.text).font('Helvetica');
 }
 
@@ -178,9 +187,9 @@ function drawSummary(doc, report) {
   ];
 
   const totalW = doc.page.width - PAGE_MARGIN * 2;
-  const gap = 10;
+  const gap = 8;
   const cardW = (totalW - gap * (cards.length - 1)) / cards.length;
-  const cardH = 70;
+  const cardH = 58;
   const startY = doc.y;
 
   cards.forEach((card, i) => {
@@ -193,24 +202,24 @@ function drawSummary(doc, report) {
     doc
       .fillColor(COLORS.muted)
       .font('Helvetica-Bold')
-      .fontSize(8)
-      .text(card.label.toUpperCase(), x + 12, startY + 14, {
-        width: cardW - 24,
-        characterSpacing: 0.5,
+      .fontSize(7.5)
+      .text(card.label.toUpperCase(), x + 10, startY + 11, {
+        width: cardW - 20,
+        characterSpacing: 0.4,
       });
     doc
       .fillColor(card.color)
       .font('Helvetica-Bold')
-      .fontSize(20)
-      .text(card.value, x + 12, startY + 28, { width: cardW - 24 });
+      .fontSize(18)
+      .text(card.value, x + 10, startY + 23, { width: cardW - 20 });
     doc
       .fillColor(COLORS.muted)
       .font('Helvetica')
-      .fontSize(8)
-      .text(card.sub, x + 12, startY + 54, { width: cardW - 24 });
+      .fontSize(7.5)
+      .text(card.sub, x + 10, startY + 45, { width: cardW - 20 });
   });
 
-  doc.y = startY + cardH + 12;
+  doc.y = startY + cardH + 10;
   doc.fillColor(COLORS.text);
 }
 
@@ -229,23 +238,29 @@ function drawBHI(doc, report) {
   doc.font('Helvetica').text('     Grade: ', { continued: true });
   doc.font('Helvetica-Bold').text(`${bhi.grade} (${bhi.grade_label})`);
 
-  doc.moveDown(0.4);
+  doc.moveDown(0.2);
   doc.font('Helvetica').fontSize(9).fillColor(COLORS.muted);
-  doc.text(`Raw weighted aggregate (before penalty): ${bhi.bhi_raw.toFixed(1)}`);
+  const bhiW = doc.page.width - PAGE_MARGIN * 2;
+  doc.text(`Raw weighted aggregate (before penalty): ${bhi.bhi_raw.toFixed(1)}`, PAGE_MARGIN, doc.y, { width: bhiW, lineBreak: false });
+  doc.y += 13;
   doc.text(
     `Critical-defect penalty: × ${bhi.penalty.multiplier}   ` +
       `(rho = ${(bhi.penalty.rho * 100).toFixed(1)}%, lambda = ${bhi.penalty.lambda}, ` +
-      `${bhi.penalty.critical_stories} critical stories)`
+      `${bhi.penalty.critical_stories} critical stories)`,
+    PAGE_MARGIN, doc.y, { width: bhiW, lineBreak: false }
   );
+  doc.y += 13;
   doc.text(
     `Consistency: sigma = ${bhi.consistency.stddev.toFixed(1)}   ` +
-      `(${bhi.consistency.interpretation}) - mean Q = ${bhi.consistency.mean_quality.toFixed(1)}`
+      `(${bhi.consistency.interpretation}) - mean Q = ${bhi.consistency.mean_quality.toFixed(1)}`,
+    PAGE_MARGIN, doc.y, { width: bhiW, lineBreak: false }
   );
+  doc.y += 13;
 
   // Formula in shaded box
-  doc.moveDown(0.5);
+  doc.moveDown(0.3);
   const formulaY = doc.y;
-  const formulaH = 30;
+  const formulaH = 26;
   doc
     .rect(PAGE_MARGIN, formulaY, doc.page.width - PAGE_MARGIN * 2, formulaH)
     .fillAndStroke(COLORS.bg, COLORS.borderLite);
@@ -328,11 +343,11 @@ function drawDimensions(doc, report) {
       .fontSize(9)
       .text(`+${contrib.toFixed(1)}`, startX + colWidth - 60, rowY, { width: 60, align: 'right' });
 
-    doc.y = rowY + 22;
+    doc.y = rowY + 20;
   });
 
   doc.fillColor(COLORS.text);
-  doc.moveDown(0.3);
+  doc.moveDown(0.2);
 }
 
 function drawIssues(doc, report) {
@@ -372,7 +387,7 @@ function drawIssues(doc, report) {
       doc.y = rowY + 20;
     });
 
-  doc.moveDown(0.3);
+  doc.moveDown(0.2);
   doc.fillColor(COLORS.text).font('Helvetica');
 }
 
@@ -384,46 +399,70 @@ function drawRecommendations(doc, report) {
 
   doc.font('Helvetica').fontSize(10).fillColor(COLORS.text);
 
+  const recTextWidth = doc.page.width - PAGE_MARGIN * 2 - 22;
+
   recs.forEach((rec, i) => {
-    ensureSpace(doc, 30);
+    // Pre-measure the text height to avoid PDFKit auto-pagination
+    doc.font('Helvetica').fontSize(9);
+    const textH = doc.heightOfString(rec, { width: recTextWidth });
+    const rowNeeded = Math.max(20, textH + 8);
+    ensureSpace(doc, rowNeeded);
+
     const rowY = doc.y;
     // Number badge
     doc
-      .rect(PAGE_MARGIN, rowY, 18, 18)
+      .rect(PAGE_MARGIN, rowY, 16, 16)
       .fillAndStroke(COLORS.accentSoft, COLORS.borderLite);
     doc
       .fillColor(COLORS.accent)
       .font('Helvetica-Bold')
-      .fontSize(9)
-      .text(String(i + 1), PAGE_MARGIN, rowY + 4, { width: 18, align: 'center' });
+      .fontSize(8)
+      .text(String(i + 1), PAGE_MARGIN, rowY + 3, { width: 16, align: 'center' });
 
     doc
       .fillColor(COLORS.text)
       .font('Helvetica')
-      .fontSize(10)
-      .text(rec, PAGE_MARGIN + 26, rowY + 3, {
-        width: doc.page.width - PAGE_MARGIN * 2 - 26,
+      .fontSize(9)
+      .text(rec, PAGE_MARGIN + 22, rowY + 2, {
+        width: recTextWidth,
+        lineBreak: true,
       });
 
-    doc.moveDown(0.3);
+    // Advance y by the pre-measured height instead of letting doc.y drift
+    doc.y = rowY + rowNeeded;
   });
 
-  doc.moveDown(0.3);
+  doc.moveDown(0.2);
 }
 
 function drawStoryTable(doc, report, backlog) {
   if (!backlog || backlog.length === 0) return;
 
-  sectionTitle(doc, 'Story-Level Quality');
+  // Always start the story table on a fresh page for a clean 2-page layout
+  doc.addPage();
+  doc.y = PAGE_MARGIN + 4;
+  // Draw section title inline (no ensureSpace needed — we're on a fresh page)
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(10)
+    .fillColor(COLORS.muted)
+    .text('STORY-LEVEL QUALITY', PAGE_MARGIN, doc.y, { characterSpacing: 1 });
+  const titleLineY = doc.y + 2;
+  doc
+    .moveTo(PAGE_MARGIN, titleLineY)
+    .lineTo(doc.page.width - PAGE_MARGIN, titleLineY)
+    .strokeColor(COLORS.borderLite).lineWidth(0.5).stroke();
+  doc.moveDown(0.3);
+  doc.fillColor(COLORS.text).font('Helvetica');
 
   const startX = PAGE_MARGIN;
   const colWidth = doc.page.width - PAGE_MARGIN * 2;
   const cols = [
-    { key: 'id',     label: 'ID',     width: 30,  align: 'left' },
-    { key: 'title',  label: 'Title',  width: 240, align: 'left' },
-    { key: 'pts',    label: 'Pts',    width: 36,  align: 'right' },
-    { key: 'q',      label: 'Q',      width: 36,  align: 'right' },
-    { key: 'issues', label: 'Issues', width: colWidth - 30 - 240 - 36 - 36, align: 'left' },
+    { key: 'id',     label: 'ID',     width: 28,  align: 'left' },
+    { key: 'title',  label: 'Title',  width: 220, align: 'left' },
+    { key: 'pts',    label: 'Pts',    width: 30,  align: 'right' },
+    { key: 'q',      label: 'Q',      width: 30,  align: 'right' },
+    { key: 'issues', label: 'Issues', width: colWidth - 28 - 220 - 30 - 30, align: 'left' },
   ];
 
   // Build per-story map
@@ -440,20 +479,20 @@ function drawStoryTable(doc, report, backlog) {
   const drawHeader = () => {
     let x = startX;
     const y = doc.y;
-    doc.rect(startX, y - 2, colWidth, 18).fill(COLORS.bg);
+    doc.rect(startX, y - 2, colWidth, 16).fill(COLORS.bg);
     cols.forEach((c) => {
       doc
         .font('Helvetica-Bold')
-        .fontSize(8)
+        .fontSize(7.5)
         .fillColor(COLORS.muted)
         .text(c.label.toUpperCase(), x + 4, y + 3, {
           width: c.width - 8,
           align: c.align,
-          characterSpacing: 0.5,
+          characterSpacing: 0.4,
         });
       x += c.width;
     });
-    doc.y = y + 20;
+    doc.y = y + 18;
   };
 
   drawHeader();
@@ -462,15 +501,19 @@ function drawStoryTable(doc, report, backlog) {
     const quality = perStoryQuality[story.id];
     const analysis = analysisMap[story.id];
     const issues = analysis?.issues || [];
-    const issuesText = issues.length === 0 ? (analysis ? 'None' : 'Not analyzed') :
-      issues.map((i) => ISSUE_LABEL[i] || i).join(', ');
+    const issuesText = issues.length === 0
+      ? (analysis ? 'None' : '—')
+      : issues.map((i) => ISSUE_SHORT[i] || i).join(', ');
 
-    // Pre-measure title height
-    const titleStr = story.title || '';
+    // Truncate long titles to guarantee single-line (220px col, 8.5pt ≈ 56 chars max)
+    const rawTitle = story.title || '';
+    const titleStr = rawTitle.length > 56 ? rawTitle.slice(0, 56) + '…' : rawTitle;
+
+    // Pre-measure heights with truncated/abbreviated text
     const heightProbeWidth = cols[1].width - 8;
-    const titleHeight = doc.heightOfString(titleStr, { width: heightProbeWidth, fontSize: 9 });
+    const titleHeight = doc.heightOfString(titleStr, { width: heightProbeWidth, fontSize: 8.5 });
     const issuesHeight = doc.heightOfString(issuesText, { width: cols[4].width - 8, fontSize: 8 });
-    const rowH = Math.max(20, Math.max(titleHeight, issuesHeight) + 8);
+    const rowH = Math.max(18, Math.max(titleHeight, issuesHeight) + 6);
 
     if (doc.y + rowH > doc.page.height - 60) {
       doc.addPage();
@@ -489,17 +532,17 @@ function drawStoryTable(doc, report, backlog) {
     // ID
     doc
       .font('Helvetica')
-      .fontSize(9)
+      .fontSize(8.5)
       .fillColor(COLORS.muted)
-      .text('#' + story.id, x + 4, rowY + 4, { width: cols[0].width - 8 });
+      .text('#' + story.id, x + 2, rowY + 3, { width: cols[0].width - 4 });
     x += cols[0].width;
 
     // Title
     doc
       .font('Helvetica')
-      .fontSize(9)
+      .fontSize(8.5)
       .fillColor(COLORS.text)
-      .text(titleStr, x + 4, rowY + 4, { width: cols[1].width - 8 });
+      .text(titleStr, x + 4, rowY + 3, { width: cols[1].width - 8, lineGap: 0 });
     x += cols[1].width;
 
     // Points
@@ -508,10 +551,10 @@ function drawStoryTable(doc, report, backlog) {
       [1,2,3,5,8,13].includes(story.story_points) ? COLORS.good : COLORS.warn;
     doc
       .font('Helvetica-Bold')
-      .fontSize(9)
+      .fontSize(8.5)
       .fillColor(ptsColor)
-      .text(String(story.story_points ?? '—'), x + 4, rowY + 4, {
-        width: cols[2].width - 8,
+      .text(String(story.story_points ?? '—'), x + 2, rowY + 3, {
+        width: cols[2].width - 4,
         align: 'right',
       });
     x += cols[2].width;
@@ -520,18 +563,18 @@ function drawStoryTable(doc, report, backlog) {
     if (quality != null) {
       doc
         .font('Helvetica-Bold')
-        .fontSize(9)
+        .fontSize(8.5)
         .fillColor(scoreColor(quality))
-        .text(quality.toFixed(0), x + 4, rowY + 4, {
-          width: cols[3].width - 8,
+        .text(quality.toFixed(0), x + 2, rowY + 3, {
+          width: cols[3].width - 4,
           align: 'right',
         });
     } else {
       doc
         .font('Helvetica')
-        .fontSize(9)
+        .fontSize(8.5)
         .fillColor(COLORS.soft)
-        .text('—', x + 4, rowY + 4, { width: cols[3].width - 8, align: 'right' });
+        .text('—', x + 2, rowY + 3, { width: cols[3].width - 4, align: 'right' });
     }
     x += cols[3].width;
 
@@ -540,7 +583,7 @@ function drawStoryTable(doc, report, backlog) {
       .font('Helvetica')
       .fontSize(8)
       .fillColor(issues.length > 0 ? COLORS.bad : COLORS.muted)
-      .text(issuesText, x + 4, rowY + 4, { width: cols[4].width - 8 });
+      .text(issuesText, x + 4, rowY + 3, { width: cols[4].width - 8, lineGap: 0 });
 
     doc.y = rowY + rowH;
 
@@ -554,7 +597,7 @@ function drawStoryTable(doc, report, backlog) {
   });
 
   doc.fillColor(COLORS.text).font('Helvetica');
-  doc.moveDown(0.3);
+  doc.moveDown(0.2);
 }
 
 function drawExecutionLog(doc, report) {
@@ -599,21 +642,33 @@ function drawExecutionLog(doc, report) {
   doc.fillColor(COLORS.text);
 }
 
-function addPageNumbers(doc) {
-  const range = doc.bufferedPageRange();
-  for (let i = 0; i < range.count; i++) {
-    doc.switchToPage(range.start + i);
-    doc
-      .font('Helvetica')
-      .fontSize(8)
-      .fillColor(COLORS.muted)
-      .text(
-        `Page ${i + 1} of ${range.count}  -  Backlog Quality Gate (MCP)`,
-        PAGE_MARGIN,
-        doc.page.height - 35,
-        { width: doc.page.width - PAGE_MARGIN * 2, align: 'center' }
-      );
-  }
+function drawPageFooter(doc, pageNum) {
+  // footerY + textHeight must stay < maxY (page.height - margin = 801).
+  // At 8pt, line height ≈ 11px. So footerY must be < 801 - 11 = 790.
+  const footerY = doc.page.height - PAGE_MARGIN - 20; // 841 - 40 - 20 = 781
+  const savedY = doc.y;
+
+  // Separator line above footer
+  doc
+    .moveTo(PAGE_MARGIN, footerY - 4)
+    .lineTo(doc.page.width - PAGE_MARGIN, footerY - 4)
+    .strokeColor(COLORS.borderLite)
+    .lineWidth(0.4)
+    .stroke();
+
+  doc
+    .font('Helvetica')
+    .fontSize(8)
+    .fillColor(COLORS.muted)
+    .text(
+      `Page ${pageNum}  ·  Backlog Quality Gate`,
+      PAGE_MARGIN,
+      footerY,
+      { width: doc.page.width - PAGE_MARGIN * 2, align: 'center', lineBreak: false }
+    );
+
+  // Restore y so drawing continues where it was (not at footer position)
+  doc.y = savedY;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -626,7 +681,8 @@ function generatePDF({ report, backlog }) {
       const doc = new PDFDocument({
         size: 'A4',
         margin: PAGE_MARGIN,
-        bufferPages: true,
+        bufferPages: false,
+        autoFirstPage: true,
         info: {
           Title: 'Backlog Quality Report',
           Author: 'Backlog Quality Gate',
@@ -641,16 +697,19 @@ function generatePDF({ report, backlog }) {
       doc.on('end', () => resolve(Buffer.concat(buffers)));
       doc.on('error', reject);
 
+      // ── Page 1: summary sections ──
       drawHeader(doc, report);
       drawSummary(doc, report);
       drawBHI(doc, report);
       drawDimensions(doc, report);
       drawIssues(doc, report);
       drawRecommendations(doc, report);
-      drawStoryTable(doc, report, backlog);
-      drawExecutionLog(doc, report);
+      drawPageFooter(doc, 1);
 
-      addPageNumbers(doc);
+      // ── Page 2: story table + execution log ──
+      drawStoryTable(doc, report, backlog);   // calls doc.addPage() internally
+      drawExecutionLog(doc, report);
+      drawPageFooter(doc, 2);
 
       doc.end();
     } catch (err) {
