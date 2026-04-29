@@ -1,8 +1,5 @@
 # AI-Driven Backlog Quality Gate — MCP Demo
 
-> **Chevron Interview Project | Use Case 2**
-> A working prototype demonstrating AI-assisted backlog analysis with a mandatory human-in-the-loop MCP approval flow.
-
 ---
 
 ## What This Does
