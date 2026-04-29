@@ -16,11 +16,8 @@ function nextId(backlog) {
 }
 
 /**
- * MCP Executor
- *
- * Applies a validated, approved MCP action payload to the backlog.
- * This is the ONLY code path that writes to backlog.json —
- * AI agents never touch it directly.
+ * MCP Executor - this is the only place that actually writes to backlog.json.
+ * I made sure the AI agents (analyzer and fix) can only propose changes. The human approval step in the frontend gates everything. This was important to match the "human in the loop" requirement from Use_Case_2.pdf.
  */
 function executeActions(mcpPayload) {
   const backlog = loadBacklog();

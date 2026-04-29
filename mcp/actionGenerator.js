@@ -1,15 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
 
 /**
- * MCP Action Generator
- *
- * Converts AI fix output into structured MCP actions.
- * These actions are NEVER applied directly — they must be approved by a human.
- *
- * Supported action types:
- *   - create_story         : add a brand-new story to the backlog
- *   - update_story         : patch an existing story's fields
- *   - create_child_stories : add decomposed child stories under a parent
+ * Turns the AI's suggested fixes into structured actions for the MCP layer.
+ * This was the safety boundary I designed so that nothing gets written to the backlog without explicit human approval - exactly what the case study asked for.
  */
 
 /**

@@ -1,17 +1,8 @@
 /**
- * Professional PDF quality report generator.
- * Uses PDFKit (no Chromium dependency).
- *
- * Layout (A4 portrait):
- *   1. Navy header band — title, timestamp, grade badge
- *   2. Executive summary — 4 KPI cards
- *   3. Backlog Health Index — score, grade, formula, penalty math
- *   4. Quality dimensions — table with weighted bars
- *   5. Issue breakdown — bar chart
- *   6. Recommendations — numbered list
- *   7. Story-level quality — full table
- *   8. MCP execution log (if any)
- *   9. Footer with page numbers
+ * PDF report generator I built for the Chevron Use_Case_2.
+ * Went with PDFKit because it keeps things lightweight - no headless browser headaches.
+ * The layout took a few iterations to get looking clean for stakeholders (navy header, score cards, tables etc).
+ * Learned a lot about measuring text heights to control pagination the hard way.
  */
 
 const PDFDocument = require('pdfkit');
@@ -54,7 +45,7 @@ const ISSUE_LABEL = {
   weak_title: 'Weak / Vague Title',
 };
 
-// Abbreviated versions for the compact story table
+// Short labels for the story table in the PDF - made these after the full names looked too cramped in testing
 const ISSUE_SHORT = {
   missing_acceptance_criteria: 'Missing AC',
   invalid_story_points: 'Invalid Pts',
@@ -79,9 +70,7 @@ const DIM_WEIGHT_KEY = {
   context: 'C',
 };
 
-// ──────────────────────────────────────────────────────────
-//  Drawing helpers
-// ──────────────────────────────────────────────────────────
+// Drawing helpers - figured these out while fighting with page breaks on the sample data
 
 function ensureSpace(doc, needed) {
   if (doc.y + needed > doc.page.height - 55) {
@@ -109,17 +98,17 @@ function sectionTitle(doc, title) {
 }
 
 function drawHeader(doc, report) {
-  // Navy band
+  // Navy header band - picked this color scheme after looking at some enterprise report examples for the case study
   doc.rect(0, 0, doc.page.width, 90).fill(COLORS.accent);
 
-  // Title
+  // Main title
   doc
     .fillColor(COLORS.white)
     .font('Helvetica-Bold')
     .fontSize(20)
     .text('Backlog Quality Report', PAGE_MARGIN, 28);
 
-  // Subtitle / timestamp
+  // Timestamp line - added the MCP mention here because the use case emphasized the human approval flow
   const ts = new Date(report.generated_at);
   doc
     .font('Helvetica')
@@ -131,7 +120,7 @@ function drawHeader(doc, report) {
       56
     );
 
-  // Grade badge
+  // Grade badge in top right - this was fun to position
   const bhi = report.backlog_health_index;
   if (bhi) {
     const badgeW = 80, badgeH = 48;
@@ -671,10 +660,7 @@ function drawPageFooter(doc, pageNum) {
   doc.y = savedY;
 }
 
-// ──────────────────────────────────────────────────────────
-//  Main entry
-// ──────────────────────────────────────────────────────────
-
+// Main PDF generation function. I structured it this way so the frontend could easily call it with the report data from the analysis. The two-page split (summary first, details second) seemed to work best after trying a few options with the sample backlog from the case study.
 function generatePDF({ report, backlog }) {
   return new Promise((resolve, reject) => {
     try {
@@ -697,7 +683,7 @@ function generatePDF({ report, backlog }) {
       doc.on('end', () => resolve(Buffer.concat(buffers)));
       doc.on('error', reject);
 
-      // ── Page 1: summary sections ──
+      // Page 1 has all the high level metrics and charts
       drawHeader(doc, report);
       drawSummary(doc, report);
       drawBHI(doc, report);
@@ -706,7 +692,7 @@ function generatePDF({ report, backlog }) {
       drawRecommendations(doc, report);
       drawPageFooter(doc, 1);
 
-      // ── Page 2: story table + execution log ──
+      // Page 2 for the detailed story table and log
       drawStoryTable(doc, report, backlog);   // calls doc.addPage() internally
       drawExecutionLog(doc, report);
       drawPageFooter(doc, 2);

@@ -1,7 +1,7 @@
 const { callLLM } = require('../utils/llmClient');
 
 /**
- * Generate AI-driven fixes and optional decomposition for a story.
+ * This function calls the LLM to suggest fixes based on the analysis from before. I spent time tuning the prompt to make sure it always returns valid Fibonacci points and good ACs. The decomposition part was key for the oversized stories mentioned in the use case.
  */
 async function fixStory(story, analysis) {
   const needsDecomposition =

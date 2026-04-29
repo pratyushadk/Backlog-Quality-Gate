@@ -17,13 +17,20 @@
   },
   {
     "id": 2,
-    "title": "Build the entire analytics module with dashboards, reports, real-time data export, ML predictions, and alert system",
-    "description": "Complete analytics system covering all data visualization, reporting, and machine learning features.",
-    "story_points": 40,
-    "acceptance_criteria": [],
+    "title": "As a data analyst, I want interactive dashboards so that I can visualize key performance metrics in real-time",
+    "description": "Build the foundation of the analytics module focusing on customizable dashboards with multiple visualization types and filtering capabilities.",
+    "story_points": 5,
+    "acceptance_criteria": [
+      "Dashboards support at least 4 visualization types (bar, line, pie, table) using sample datasets",
+      "Users can add/remove/resize widgets and the layout is persisted per user",
+      "Filters by date, category and metrics update all visualizations within 2 seconds",
+      "Data refreshes automatically every 10 seconds with manual refresh option",
+      "Dashboards render correctly on desktop, tablet and mobile viewports"
+    ],
     "parent_id": null,
     "status": "todo",
-    "type": "story"
+    "type": "story",
+    "updated_at": "2026-04-29T09:54:42.003Z"
   },
   {
     "id": 3,
@@ -118,5 +125,69 @@
     "parent_id": null,
     "status": "todo",
     "type": "story"
+  },
+  {
+    "id": 11,
+    "title": "As a data analyst, I want customizable reports with real-time export so that I can analyze and share data offline",
+    "description": "Implement reporting engine with templates, generation logic and multiple export formats including real-time data pulls.",
+    "story_points": 5,
+    "acceptance_criteria": [
+      "Users can build reports via drag-and-drop interface selecting from available metrics",
+      "Reports generate in under 5 seconds for standard queries and can be saved",
+      "Export supports CSV, PDF and JSON formats with user-selected data ranges",
+      "Scheduled exports can be configured and delivered via email"
+    ],
+    "parent_id": 2,
+    "status": "todo",
+    "type": "story",
+    "created_at": "2026-04-29T09:54:42.012Z"
+  },
+  {
+    "id": 12,
+    "title": "As an analyst, I want ML predictions integrated into analytics so that I can forecast trends from historical data",
+    "description": "Integrate basic ML models to generate and display predictions alongside visualizations.",
+    "story_points": 8,
+    "acceptance_criteria": [
+      "At least two ML models (forecasting and anomaly detection) are available and selectable",
+      "Prediction results display with confidence scores on dashboards and reports",
+      "Models can be retrained via an admin UI using the latest dataset",
+      "Predictions refresh asynchronously without impacting dashboard performance"
+    ],
+    "parent_id": 2,
+    "status": "todo",
+    "type": "story",
+    "created_at": "2026-04-29T09:54:42.012Z"
+  },
+  {
+    "id": 13,
+    "title": "As a manager, I want configurable alerts so that I am notified of critical changes or anomalies",
+    "description": "Build rules-based alerting system tied to analytics data and ML outputs.",
+    "story_points": 5,
+    "acceptance_criteria": [
+      "Users can define alert rules based on metric thresholds or ML anomalies",
+      "Alerts trigger in-app notifications and emails with relevant context",
+      "Alert history is viewable with status, timestamp and resolution notes",
+      "System prevents duplicate alerts within a configurable cooldown period"
+    ],
+    "parent_id": 2,
+    "status": "todo",
+    "type": "story",
+    "created_at": "2026-04-29T09:54:42.012Z"
+  },
+  {
+    "id": 14,
+    "title": "As a DevOps engineer, I want the CI/CD pipeline fixed so that builds and deployments run reliably without errors",
+    "description": "The current pipeline fails intermittently due to configuration and dependency issues. This work identifies root causes, applies fixes, and verifies stable operation for the development team.",
+    "story_points": 3,
+    "acceptance_criteria": [
+      "Pipeline successfully builds, tests, and deploys a sample change on the main branch with zero errors",
+      "Pipeline runtime is under 5 minutes and all stages (lint, test, build, deploy) are green in the UI",
+      "Error logs are empty and any new configuration is documented in the repo README",
+      "Team verifies the fix by triggering two consecutive successful runs after changes are merged"
+    ],
+    "parent_id": null,
+    "status": "todo",
+    "type": "story",
+    "created_at": "2026-04-29T09:58:11.036Z"
   }
 ]

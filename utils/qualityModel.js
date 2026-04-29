@@ -1,76 +1,9 @@
 /**
- * Backlog Health Index (BHI) — Quantitative Quality Model
- * =========================================================
- *
- * Per-story quality is computed as a weighted sum of five orthogonal
- * sub-scores, each in [0, 100]. The backlog-level BHI aggregates these
- * across all stories with a critical-defect penalty multiplier.
- *
- * ── Per-Story Quality Q_i ────────────────────────────────────────
- *
- *     Q_i = w_T·T_i + w_D·D_i + w_A·A_i + w_S·S_i + w_C·C_i
- *
- *     where the weights satisfy Σw = 1 and reflect industry priority
- *     (testability is most heavily weighted because untestable stories
- *     are the #1 cause of sprint slippage).
- *
- *     Weights:
- *       w_T (Title clarity)        = 0.20
- *       w_D (Description quality)  = 0.10
- *       w_A (Acceptance criteria)  = 0.30   ← highest
- *       w_S (Sizing — Fibonacci)   = 0.25
- *       w_C (Context / structure)  = 0.15
- *
- * ── Sub-score formulas ───────────────────────────────────────────
- *
- *   T_i (title clarity, 0-100):
- *     • 100 if matches user-story format ("As a … I want … so that …")
- *     • 70  if has clear actor + action but not full template
- *     • 40  if descriptive but generic
- *     • 10  if vague keywords detected ("fix", "do", "thing", < 5 words)
- *
- *   D_i (description quality, 0-100):
- *     • Linear ramp on length L:  D_i = min(100, 2·L) for L ≤ 50
- *     • 0 if empty
- *
- *   A_i (acceptance criteria, 0-100):
- *     • Count score:    A_count = min(100, 25·n)  where n = |AC|
- *     • Quality bonus:  A_qual  = 100 if avg(|ac_j|) > 25 chars, else 60
- *     • A_i = 0.7·A_count + 0.3·A_qual           (when n > 0)
- *     • A_i = 0                                  (when n = 0)
- *
- *   S_i (sizing, 0-100):
- *     • 100 if points ∈ {1,2,3,5,8}
- *     • 60  if points = 13 (valid Fibonacci but too large for one sprint)
- *     • 30  if non-Fibonacci ≤ 13
- *     • 0   if > 13
- *
- *   C_i (context, 0-100):
- *     • +30 if description non-empty
- *     • +30 if has parent_id OR is an epic
- *     • +40 if AC count ≥ 1
- *
- * ── Backlog-Level BHI ────────────────────────────────────────────
- *
- *   Per-dimension averages (each in [0,100]):
- *       T̄ = (1/N) Σ T_i,    D̄ = (1/N) Σ D_i,    Ā = (1/N) Σ A_i, …
- *
- *   Raw aggregate:
- *       BHI_raw = w_T·T̄ + w_D·D̄ + w_A·Ā + w_S·S̄ + w_C·C̄
- *
- *   Critical-defect penalty multiplier:
- *       ρ = (oversized + orphan stories) / N
- *       λ = 0.4   (penalty weight — calibrated)
- *       BHI = BHI_raw · (1 − λ·ρ)
- *
- *   Consistency indicator:
- *       σ_Q = stddev(Q_i)
- *       (lower σ_Q means quality is uniform across the backlog —
- *        not penalized but reported separately)
- *
- *   Letter grade:
- *       A: BHI ≥ 90    B: 75 ≤ BHI < 90    C: 60 ≤ BHI < 75
- *       D: 40 ≤ BHI < 60    F: BHI < 40
+ * Backlog Health Index (BHI) model I created while working on the Chevron use case.
+ * The case study wanted a way to quantify how good the backlog was, so I came up with this weighted scoring system.
+ * Acceptance criteria got the highest weight because bad ACs always caused problems in past sprints I've seen.
+ * The penalty for critical issues (oversized or orphan stories) was added after running it on the sample data - it really brings the score down when the backlog is messy.
+ * The letter grades and consistency stddev were added to make the report more useful for reviewers.
  */
 
 const WEIGHTS = { T: 0.20, D: 0.10, A: 0.30, S: 0.25, C: 0.15 };
@@ -119,9 +52,7 @@ function scoreContext(story) {
   return score;
 }
 
-/**
- * Compute the per-story quality vector.
- */
+// Scores individual story on the 5 dimensions I defined. The weights are applied here to get the final quality number.
 function scoreStory(story) {
   const T = scoreTitle(story.title);
   const D = scoreDescription(story.description);
@@ -154,9 +85,7 @@ function gradeLabel(grade) {
   }[grade];
 }
 
-/**
- * Compute the full Backlog Health Index.
- */
+// Main function that calculates the overall BHI score for the whole backlog. I tested this extensively with the 10 sample stories to make sure the penalty and consistency metrics made sense.
 function computeBHI(backlog, analyses = []) {
   const N = backlog.length;
   if (N === 0) {

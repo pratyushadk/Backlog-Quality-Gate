@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'frontend')));
 
-// API Routes
+// Mounted all the route modules here. I organized the routes by feature (analysis, mcp, reports etc) to keep things clean while implementing the full flow from the case study.
 app.use('/backlog', require('./routes/backlog'));
 app.use('/analyze', require('./routes/analyze'));
 app.use('/fix', require('./routes/fix'));
@@ -18,7 +18,7 @@ app.use('/mcp', require('./routes/mcp'));
 app.use('/report', require('./routes/report'));
 app.use('/draft', require('./routes/draft'));
 
-// Serve frontend for any unmatched route
+// Catch-all to serve the frontend SPA. This was the easiest way to handle client routing without a separate build step.
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
