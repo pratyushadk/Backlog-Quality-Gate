@@ -1,0 +1,92 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DEMO 1 — Missing Acceptance Criteria + Non-Fibonacci Story Points
+Issues expected: missing_acceptance_criteria, invalid_story_points
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Title:
+  As a field engineer, I want to view equipment maintenance schedules
+  so that I can plan site visits in advance
+
+Description:
+  Field engineers need access to a centralized dashboard showing upcoming
+  maintenance windows for all assigned equipment across sites.
+  This reduces unplanned downtime.
+
+Story Points:
+  6
+
+Acceptance Criteria:
+  (leave empty)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DEMO 2 — Oversized Story (Forces AI Decomposition)
+Issues expected: oversized_story, invalid_story_points
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Title:
+  As a safety manager, I want to build a complete incident reporting
+  and analytics system so that all safety events are tracked, analyzed,
+  and reported to regulators
+
+Description:
+  Build end-to-end incident management: incident form submission,
+  photo/document uploads, automated notifications to supervisors,
+  root cause analysis module, dashboards showing incident trends
+  by site, and a one-click regulatory compliance report export.
+
+Story Points:
+  21
+
+Acceptance Criteria:
+  Incidents can be submitted from mobile.
+  Notifications sent within 5 minutes.
+  Regulatory report exports as PDF.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DEMO 3 — Orphan Story + Vague Title (Worst Case)
+Issues expected: weak_title, orphan_story, missing_acceptance_criteria,
+                 invalid_story_points  (ALL FOUR — high severity)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Title:
+  Fix the pipeline thing
+
+Description:
+  (leave empty)
+
+Story Points:
+  4
+
+Acceptance Criteria:
+  (leave empty)
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DEMO 4 — Clean Story (Contrast / Validation Demo)
+Issues expected: none  (AI should approve as-is)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Title:
+  As a plant operator, I want to receive real-time alerts when sensor
+  readings exceed safety thresholds so that I can respond before
+  equipment failure occurs
+
+Description:
+  Operators monitoring multiple systems need push notifications and
+  on-screen alerts when any sensor (pressure, temperature, flow rate)
+  crosses a predefined safety limit. Alerts must identify the sensor,
+  location, and threshold breached.
+
+Story Points:
+  5
+
+Acceptance Criteria:
+  Alert fires within 30 seconds of threshold breach.
+  Alert displays sensor ID, current value, and threshold limit.
+  Operator can acknowledge alert from the dashboard.
+  Unacknowledged alerts escalate to supervisor after 10 minutes.
+
