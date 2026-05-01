@@ -4,12 +4,12 @@
 
 ## What This Does
 
-This tool takes a JSON backlog of user stories, analyzes each one for quality issues using AI (Grok), proposes concrete fixes, and then applies those fixes *only* through a structured **MCP (Model Context Protocol)** layer — and only after explicit human approval.
+This tool takes a JSON backlog of user stories, analyzes each one for quality issues using AI (Llama 3.1 70B via NVIDIA), proposes concrete fixes, and then applies those fixes *only* through a structured **MCP (Model Context Protocol)** layer — and only after explicit human approval.
 
 **No AI agent can directly mutate the backlog.** Every change is a structured, auditable MCP action.
 
 Key capabilities:
-- Analyze all backlog stories in parallel via Grok LLM
+- Analyze all backlog stories in parallel via AI
 - Detect 5 issue types with a hybrid LLM + rule-based engine
 - Show a side-by-side before/after JSON comparison with full human editing
 - Let users type brand-new backlog entries and run them through the same AI pipeline
@@ -27,13 +27,13 @@ Backlog (JSON)
      │
      ▼
 ┌─────────────────┐
-│  Analyzer Agent  │  ← Grok LLM (detects issues) + rule-based fallback
+│  Analyzer Agent  │  ← Llama 3.1 70B (detects issues) + rule-based fallback
 │  (analyzerAgent) │
 └────────┬────────┘
          │  analysis result
          ▼
 ┌─────────────────┐
-│   Fix Agent      │  ← Grok LLM (proposes improvements + decomposition)
+│   Fix Agent      │  ← Llama 3.1 70B (proposes improvements + decomposition)
 │   (fixAgent)     │
 └────────┬────────┘
          │  fix result
@@ -123,7 +123,7 @@ The BHI is displayed as a live circular score ring on the dashboard and updates 
 Users can type a brand-new backlog story directly in the UI:
 
 1. Click **"New Story"** → fill in title, description, story points, acceptance criteria, optional parent
-2. Click **"Analyze & Suggest Improvements"** — Grok analyzes the draft and generates fixes
+2. Click **"Analyze & Suggest Improvements"** — The AI analyzes the draft and generates fixes
 3. A side-by-side **Original / AI Improved** JSON comparison appears — **both panes are editable**
 4. If the story is oversized, an **editable decomposition JSON array** of child stories also appears
 5. Click **"Apply Edits & Refresh MCP"** to sync any manual changes back to the MCP payload
@@ -217,7 +217,7 @@ project/
 
 ### Prerequisites
 - Node.js v18+
-- A Grok API key from [console.x.ai](https://console.x.ai)
+- An NVIDIA API key from [integrate.api.nvidia.com](https://integrate.api.nvidia.com/)
 
 ### 1. Install dependencies
 
@@ -231,11 +231,11 @@ npm install
 copy .env.example .env
 ```
 
-Edit `.env` and set your Grok API key:
+Edit `.env` and set your NVIDIA API key and model (we left the variable names as GROK_ to avoid needing to change more code):
 
 ```
-GROK_API_KEY=xai-xxxxxxxxxxxxxxxxxxxxxxxx
-GROK_MODEL=grok-3-mini
+GROK_API_KEY=nvapi-xxxxxxxxxxxxxxxxxxxxxxxx
+GROK_MODEL=abacusai/dracarys-llama-3.1-70b-instruct
 PORT=5000
 ```
 
@@ -324,8 +324,8 @@ AI suggestions are a starting point, not ground truth. Giving the reviewer edita
 **Why PDFKit for the PDF?**
 No Chromium, no headless browser, no native binaries. PDFKit runs pure Node.js, generates clean A4 layouts programmatically, and is ~1 MB of dependencies.
 
-**Why Grok?**
-Fast, good at structured JSON output, and the team has API access. The LLM client is OpenAI-SDK-compatible so swapping to GPT-4 is a one-line change in `llmClient.js`.
+**Why Abacus.AI Llama 3.1 70B (via NVIDIA API)?**
+Fast, highly reliable at strict JSON output, and excellent at logic tasks. *Note: When migrating from Grok to NVIDIA's API, the major necessary code change was explicitly setting `stream: false` in the OpenAI SDK client (`utils/llmClient.js`), as NVIDIA's endpoints default to streaming which causes JSON parsing errors.*
 
 ---
 

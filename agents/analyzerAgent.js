@@ -3,7 +3,7 @@ const { callLLM } = require('../utils/llmClient');
 const FIBONACCI = new Set([0, 1, 2, 3, 5, 8, 13]);
 
 /**
- * Rule based checks I put together early on. The case study stressed having reliable quality gates even if the LLM was down, so these act as a solid fallback. Tweaked the orphan story logic after testing with the sample data.
+ * Rule-based fallback checks for quality gates. Ensures reliability if the LLM is unavailable.
  */
 function ruleBasedAnalysis(story) {
   const issues = [];
@@ -32,7 +32,7 @@ function ruleBasedAnalysis(story) {
 }
 
 /**
- * Main analysis function. I combined the LLM call with the rules I wrote above. The prompt took some refining to get consistent JSON output from Grok.
+ * Main analysis function. Combines LLM analysis with rule-based fallback.
  */
 async function analyzeStory(story) {
   const systemPrompt = `You are a senior scrum master and backlog quality analyst.
